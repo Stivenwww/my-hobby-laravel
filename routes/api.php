@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiProductoController;
 use App\Http\Controllers\ApiCategoriaController;
@@ -15,13 +16,18 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+// Rutas públicas
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::apiResource('productos', ApiProductoController::class);
+// Rutas protegidas con JWT
+Route::middleware(['auth:api'])->group(function () {
+    Route::get('/me', [AuthController::class, 'me']);
 
-Route::middleware('api')->group(function () {
+    // productos
+    Route::apiResource('productos', ApiProductoController::class);
+
+    // CRUD de categorías
     Route::get('categorias', [ApiCategoriaController::class, 'index']);
     Route::post('categorias', [ApiCategoriaController::class, 'store']);
     Route::get('categorias/{id}', [ApiCategoriaController::class, 'show']);
